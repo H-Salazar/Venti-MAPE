@@ -44,9 +44,9 @@ void setRGB(uint8_t r, uint8_t g, uint8_t b){
 
 void setFanPWM(uint8_t pwm){
   analogWrite(MOTOR_PIN, MOTOR_VALUE(pwm));
-  Serial.printf("FanPWM=> %d\n", pwm); //Va
+  Serial.printf("FanPWM=> %d\n", pwm); //Muestra en pantalla
   if (pCharFan != nullptr) {
-    String pwmStr = String((int)pwm); //actualizar la characteristic FAN con el PWM actual
+    String pwmStr = String((int)pwm); //Envía el valor actual del ventilador por Bluetooth.
     pCharFan->setValue(pwmStr.c_str());
   }
 }
@@ -54,7 +54,7 @@ void setFanPWM(uint8_t pwm){
 
 //para la parte automatica del motor
 uint8_t calcularPWMdesdeTemp(float temp){
-  int t = (int)temp;
+  int t = (int)temp; //De float a int
   int velocidadPWM = 0;
   if (t < TEMP_INICIO){
     return 0; //motor apagado
@@ -85,13 +85,13 @@ class CharRGBCallbacks: public BLECharacteristicCallbacks{
     Serial.print("RGB recibido: ");
     Serial.println(value);
     int r = 0, g = 0, b = 0;
-    int c1 = value.indexOf(',');
+    int c1 = value.indexOf(','); //separa por comas
     int c2 = value.indexOf(',', c1 + 1);
     if (c1 > 0 && c2 > c1){
       r = value.substring(0, c1).toInt();
       g = value.substring(c1 + 1, c2).toInt();
       b = value.substring(c2 + 1).toInt();
-      setRGB(r, g, b);
+      setRGB(r, g, b); //cambia el color
     } else Serial.println("Formato RGB invalido");
   }
 };
@@ -99,7 +99,7 @@ class CharRGBCallbacks: public BLECharacteristicCallbacks{
 //recibir PWM
 class CharFanCallbacks: public BLECharacteristicCallbacks{
   void onWrite(BLECharacteristic* characteristic){
-    String value = characteristic->getValue();
+    String value = characteristic->getValue(); 
     value.trim();
     Serial.print("FAN recibido: ");
     Serial.println(value);
@@ -128,12 +128,12 @@ void setup(){
   setRGB(0, 0, 0);
   setFanPWM(0);
   //DHT11
-  dht.begin();
+  dht.begin(); //prepara el sensor
 //BLE
   BLEDevice::init(bleName);
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new ServerCallbacks());
-  BLEService *pService = pServer->createService(SERVICE_UUID);
+  BLEService *pService = pServer->createService(SERVICE_UUID);//crea un servidor
 //caracteristicas RGB
   pCharRGB = pService->createCharacteristic(CHAR_RGB_UUID, BLECharacteristic::PROPERTY_READ |BLECharacteristic::PROPERTY_WRITE);
   pCharRGB->setCallbacks(new CharRGBCallbacks());
@@ -173,4 +173,5 @@ void loop(){
     Serial.println(velocidadPWM_auto);
   }
 }
+
 
