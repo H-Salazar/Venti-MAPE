@@ -3,22 +3,25 @@
 #include <BLEServer.h>
 #include "DHT.h"
 
-const char *bleName = "ESP32-RGB-FAN";
+const char *bleName = "ESP32-RGB-FAN"; //Asigna los nombres
 #define SERVICE_UUID "12345678-1234-1234-1234-1234567890ab"
 #define CHAR_RGB_UUID "12345678-1234-1234-1234-1234567890ac"
 #define CHAR_FAN_UUID "12345678-1234-1234-1234-1234567890ad"
 
+//Define pines del RGB y motor
 const int PIN_R = 1;
 const int PIN_G = 2;
 const int PIN_B = 3;
 const int MOTOR_PIN = 5;
 
+//Define el DHT para medir temperatura y humedad
 #define DHTPIN 4
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 #define LED_VALUE(x)(x) //CATODO COMUN
 #define MOTOR_VALUE(x)(x) //0=apagado 255=max
 
+//Define el ramgo de temperatura
 const float TEMP_INICIO = 23.0;
 const float TEMP_MAX = 28.0;
 
@@ -26,11 +29,12 @@ int velocidadPWM_auto = 0;
 int velocidadPWM_manual = 0;
 bool modoManualFan = false; //false=DHT true=app
 
-//BLE
+//Se declaran los punteros a los componentes del BLE. 
 BLEServer* pServer;
 BLECharacteristic* pCharRGB;
 BLECharacteristic* pCharFan;
 
+//Es la función que maneja el control del color del RGB
 void setRGB(uint8_t r, uint8_t g, uint8_t b){
   analogWrite(PIN_R, LED_VALUE(r));
   analogWrite(PIN_G, LED_VALUE(g));
@@ -40,7 +44,7 @@ void setRGB(uint8_t r, uint8_t g, uint8_t b){
 
 void setFanPWM(uint8_t pwm){
   analogWrite(MOTOR_PIN, MOTOR_VALUE(pwm));
-  Serial.printf("FanPWM=> %d\n", pwm);
+  Serial.printf("FanPWM=> %d\n", pwm); //Va
   if (pCharFan != nullptr) {
     String pwmStr = String((int)pwm); //actualizar la characteristic FAN con el PWM actual
     pCharFan->setValue(pwmStr.c_str());
@@ -169,3 +173,4 @@ void loop(){
     Serial.println(velocidadPWM_auto);
   }
 }
+
